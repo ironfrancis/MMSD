@@ -10,10 +10,6 @@ pd.set_option('display.max_rows', None)
 pd.set_option('display.width', 1280)
 
 
-# 打印Shop类的所有方法
-def print_methods(obj):
-    print([method for method in dir(obj) if callable(getattr(obj, method))])
-
 
 # 定义一个类，用来操作 我的商店
 class Shop(object):
