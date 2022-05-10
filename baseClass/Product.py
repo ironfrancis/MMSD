@@ -22,7 +22,7 @@ class Product:
     @property
     def name(self):
         # 根据productBarcode到数据表中查询最新的订单记录，并返回productName
-        from mydb_fix import conn
+        from mydb_fix_backup import conn
         sql = 'select productName from SaleRecords2 where productBarcode = "{}" order by time desc limit 1'.format(
             self.barcode)
         df = pd.read_sql(sql, conn)
@@ -39,7 +39,7 @@ class Product:
     # 查询最近若干天以来的销量
     def sales_recent(self, days):
         from datetime import datetime as dt
-        from mydb_fix import conn
+        from mydb_fix_backup import conn
         # 查询最近若干天以来的销量
         sql = '''
         SELECT SUM(productQuantity) AS sales    -- 汇总销量 productQuantity
@@ -55,7 +55,7 @@ class Product:
     # 到数据表中查询商品某一天的销量，默认为今天
     def get_sales(self, date=None, end_date=None):
         from datetime import datetime as dt
-        from mydb_fix import conn
+        from mydb_fix_backup import conn
         if date is None:
             begin_date_time = dt.now().strftime('%Y-%m-%d') + ' 00:00:00'
             end_date_time = dt.now().strftime('%Y-%m-%d') + ' 23:59:59'

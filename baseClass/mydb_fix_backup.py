@@ -125,8 +125,3 @@ def query_records_by_timeframe(beginDateTime, endDateTime):
         print('写入一条记录 id: ', tds[0])
     conn.commit()
 
-
-update_records()
-# print(check_table().columns)
-# print(check_table().sort_values(by='time', ascending=False))
-
