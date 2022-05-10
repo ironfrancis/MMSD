@@ -1,4 +1,4 @@
-from baseClass.Shop import gtpShop
+from BaseClass.Shop import gtpShop
 
 
 def setSecKill(days=None, discount=None):

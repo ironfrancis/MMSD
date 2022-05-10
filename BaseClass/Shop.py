@@ -2,7 +2,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-from mydb_fix_backup import conn
+from BaseClass.mydb_fix_backup import conn
 from 外部接口.pos_login import *
 
 pd.set_option('display.max_columns', None)
@@ -27,12 +27,12 @@ class Shop(object):
     # 根据本地数据库查询的接口
     @property
     def DataBase(self):
-        from baseClass.myDatabase import ShopDb
+        from BaseClass.myDatabase import ShopDb
         return ShopDb(shop_id=self.user_id, shop_name=self.name)
 
     # 超类ProCat接口
     def Cat(self, name):
-        from baseClass.PROCAT import ProCat
+        from BaseClass.PROCAT import ProCat
         cat = ProCat(name=name, shopId=self.user_id, pos=self.pos)
         print("get Cat")
         return cat
@@ -237,7 +237,7 @@ class Shop(object):
     # 将银豹后台查询的方法，封装一个接口，pos
     @property
     def pos(self):
-        from baseClass.Pospal import PosPal
+        from BaseClass.Pospal import PosPal
         return PosPal(self.user_id, self.phone)
 
     # 查询目前的分类情况，list[{'name':'', 'id':''},...]
@@ -255,7 +255,7 @@ class Shop(object):
     # 生成该店铺下的全部ProCat
     @property
     def all_ProCat(self):
-        from baseClass.PROCAT import ProCat
+        from BaseClass.PROCAT import ProCat
         dic = {}
         for cat in self.query_category():
             dic['{}'.format(cat)] = ProCat(name=cat, shopId=self.user_id, pos=self.pos)
@@ -295,7 +295,7 @@ class Shop(object):
                 barcode = conn.execute(sql).fetchone()[0]
             except:
                 return print('条码转换错误，请检查商品名称是否正确')  # 如果查询不到，那么就返回
-        from baseClass.Product import Product
+        from BaseClass.Product import Product
         return Product(barcode=barcode, Shop=self)
 
     # 根据商品名称或条码 查询数据库中的记录
