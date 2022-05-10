@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# 数据文件
+.jpg
+.jpeg
+.png
+.db
