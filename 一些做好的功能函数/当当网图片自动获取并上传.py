@@ -1,7 +1,7 @@
 import time
 
-from shop_test import gtpShop,syhShop
-from dangdang import GetDangDangPicture
+from shop_test import gtpShop
+from 外部接口.dangdang import GetDangDangPicture
 
 table = gtpShop.pos.LoadMatchProductsByPage()
 noPicList = table[table['系统内图片'] == 0.0].index.tolist()

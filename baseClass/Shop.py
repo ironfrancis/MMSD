@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 from mydb_fix import conn
-from pos_login import *
+from 外部接口.pos_login import *
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)

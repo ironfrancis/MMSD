@@ -61,7 +61,7 @@ def update_records():
     print('beginDateTime: ', beginDateTime)
     print('endDateTime: ', endDateTime)
 
-    from pos_login import get_zd_session
+    from 外部接口.pos_login import get_zd_session
     zd_session = get_zd_session()
     # 获取订单记录
     __url = "https://beta47.pospal.cn/Report/LoadProductSaleDetailsByPage"
@@ -98,7 +98,7 @@ def update_records():
 
 # 做一个根据时间范围查询收银后台并写入数据表的方法
 def query_records_by_timeframe(beginDateTime, endDateTime):
-    from pos_login import get_zd_session
+    from 外部接口.pos_login import get_zd_session
     zd_session = get_zd_session()
     # 获取订单记录
     __url = "https://beta47.pospal.cn/Report/LoadProductSaleDetailsByPage"
