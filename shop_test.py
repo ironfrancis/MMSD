@@ -1,5 +1,4 @@
-import time
-from Shop import gtpShop
+from baseClass.Shop import gtpShop
 
 # gtpShop.eshopList()
 

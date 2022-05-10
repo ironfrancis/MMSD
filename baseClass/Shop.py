@@ -1,7 +1,3 @@
-import json
-import time
-
-from pyecharts.charts import Bar
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
@@ -40,7 +36,7 @@ class Shop(object):
 
     # 超类ProCat接口
     def Cat(self, name):
-        from classProCat import ProCat
+        from baseClass.classProCat import ProCat
         cat = ProCat(name=name, shopId=self.user_id, pos=self.pos)
         print("get Cat")
         return cat
@@ -245,7 +241,7 @@ class Shop(object):
     # 将银豹后台查询的方法，封装一个接口，pos
     @property
     def pos(self):
-        from posFunctionsNew import PosPal
+        from baseClass.posFunctionsNew import PosPal
         return PosPal(self.user_id, self.phone)
 
     # 查询目前的分类情况，list[{'name':'', 'id':''},...]
@@ -263,7 +259,7 @@ class Shop(object):
     # 生成该店铺下的全部ProCat
     @property
     def all_ProCat(self):
-        from classProCat import ProCat
+        from baseClass.classProCat import ProCat
         dic = {}
         for cat in self.query_category():
             dic['{}'.format(cat)] = ProCat(name=cat, shopId=self.user_id, pos=self.pos)
@@ -303,7 +299,7 @@ class Shop(object):
                 barcode = conn.execute(sql).fetchone()[0]
             except:
                 return print('条码转换错误，请检查商品名称是否正确')  # 如果查询不到，那么就返回
-        from ClassProduct import Product
+        from baseClass.ClassProduct import Product
         return Product(barcode=barcode, Shop=self)
 
     # 根据商品名称或条码 查询数据库中的记录

@@ -1,6 +1,4 @@
-import json
-
-from Shop import gtpShop
+from baseClass.Shop import gtpShop
 
 
 def setSecKill(days=None, discount=None):

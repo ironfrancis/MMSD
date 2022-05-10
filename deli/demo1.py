@@ -1,4 +1,4 @@
-from Shop import gtpShop, syhShop
+from baseClass.Shop import gtpShop
 import requests
 import bs4
 import re
