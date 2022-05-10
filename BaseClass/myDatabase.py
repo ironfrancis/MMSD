@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 
-dbpath = "/Users/mengmeng/Documents/MMSD V0.2/mydatabase.db"
+dbpath = "/Users/mengmeng/Documents/Python_Projects/mydatabase.db"
 conn = sqlite3.connect(dbpath)
 
 
