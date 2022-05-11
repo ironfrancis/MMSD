@@ -2,7 +2,7 @@ import sqlite3
 import pandas as pd
 
 # 打开数据库
-conn = sqlite3.connect('/Users/mengmeng/Documents/Python_Projects/mydatabase.db')
+# conn = sqlite3.connect('/Users/mengmeng/Documents/Python_Projects/mydatabase.db')
 
 
 # 创建数据表

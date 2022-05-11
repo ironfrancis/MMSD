@@ -1,8 +1,9 @@
+import json
+
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-from BaseClass.mydb_fix_backup import conn
 from 外部接口.pos_login import *
 
 pd.set_option('display.max_columns', None)
@@ -22,7 +23,7 @@ class Shop(object):
     def eshopList(self):
         table = self.pos.LoadEshopProductsByPage()
         table = table[table['是否显示'] == '是']
-        print(table.sort_values('销售价', ascending=False))
+        print(table.sort_values('销售价', ascending=False).reset_index("序号",drop=True))
 
     # 根据本地数据库查询的接口
     @property
@@ -230,7 +231,7 @@ class Shop(object):
     # 查询今日活跃分类
     def get_active_category(self):
         table = self.pos.LoadProductSaleDetailsByPage().drop(
-            ['Unnamed: 0', '商品原价', '商品折后价', '实收金额', '销售额占比', '成本', '利润'], axis=1)
+            ['商品原价', '商品折后价', '实收金额', '销售额占比', '成本', '利润'], axis=1)
         table = table.groupby(['商品分类']).sum().sort_values('商品总价', ascending=False)
         return table
 
@@ -240,17 +241,31 @@ class Shop(object):
         from BaseClass.Pospal import PosPal
         return PosPal(self.user_id, self.phone)
 
-    # 查询目前的分类情况，list[{'name':'', 'id':''},...]
-    def query_category(self):
+    # 查询目前的分类情况，
+    def query_category(self, to_nameList=False,to_json=False,type=0):
+        categoryType = ['all','grand','father','son','grandson'][type]
         session = get_zd_session()
         url = 'https://beta47.pospal.cn/Category/LoadCategorysWithOption'
         resp = session.post(url, data={'userId': '{}'.format(self.user_id), })
         cate_dic_list = resp.json()['categorys']
-        cat_name_list = []
-        for dic in cate_dic_list:
-            cat_name_list.append(dic['name'])
-        # print(cat_name_list)
-        return cat_name_list
+
+        if categoryType == 'grand':
+            resultDict = {}
+            for c in cate_dic_list:
+                if c['parentUid'] == 0:
+                    # print(c)
+                    resultDict[c['name']] = c['uid']
+            return resultDict
+
+
+        # 返回分类名称列表 list[{'name':'', 'id':''},...]
+        if to_nameList:
+            cat_name_list = []
+            for dic in cate_dic_list:
+                cat_name_list.append(dic['name'])
+            return cat_name_list
+        elif to_json:
+            return cate_dic_list
 
     # 生成该店铺下的全部ProCat
     @property
@@ -414,7 +429,6 @@ class Shop(object):
         :param barcode:
         :return: productjson
         """
-
         __id = self.get_product_id(barcode)
         zd_session = get_zd_session()
         _resp = zd_session.post(url='https://beta47.pospal.cn/Product/FindProduct', headers={
@@ -423,7 +437,7 @@ class Shop(object):
             'X-Requested-With': 'XMLHttpRequest'
 
         }, data={'productId': __id})
-        return _resp
+        return json.dumps(_resp.json(),ensure_ascii=False,indent=5)
 
     # 检查是否有图片，从findproduct的结果中解析而来
     def check_image(self, barcode):
