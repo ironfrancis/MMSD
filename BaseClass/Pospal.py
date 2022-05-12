@@ -51,7 +51,7 @@ class PosPal(object):
         resp = self.session.post(url, data).json()
         # 检查返回的数据是否正确
         if resp['successed']:
-            return json.dumps(resp['product'], indent=4, ensure_ascii=False)
+            return jsontest.dumps(resp['product'], indent=4, ensure_ascii=False)
         else:
             print("请求错误，请检查barcode是否正确")
 
@@ -391,102 +391,54 @@ class PosPal(object):
         return response.json()['product']
 
     # 保存商品： 暂时不可用
-    def SaveProduct(self, barcode=None, ):
-        # 先find商品信息
-        f = self.FindProduct(barcode_or_name=barcode)
-        # check key 'shelfLife'
-        if 'shelfLife' not in f.keys():
-            f['shelfLife'] = ''
-
-        # check key supplierUid
-        if 'supplierUid' not in f.keys():
-            f['supplierUid'] = 'null'
-
-        # check key supplierRangeList
-        if 'supplierRangeList' not in f.keys():
-            f['supplierRangeList'] = []
-
-        # check key 'maxStock'
-        if 'maxStock' not in f.keys():
-            f['maxStock'] = ''
-
-        # check key 'minStock'
-        if 'minStock' not in f.keys():
-            f['minStock'] = ''
-
-        # check key 'supplierName'
-        if 'supplierName' not in f.keys():
-            f['supplierName'] = '无'
-
-        # check key 'productCommonAttribute'
-        if 'productCommonAttribute' not in f.keys():
-            f['productCommonAttribute'] = ''
+    def SaveProduct(self, barcode=None, fixData={}, ):
+        findJson = self.FindProduct(barcode_or_name=barcode)
+        saveJson = {
+            "id": "",
+            "enable": "",
+            "userId": "",
+            "barcode": "",
+            "name": "",
+            "categoryUid": "",
+            "categoryName": "",
+            "sellPrice": "",
+            "buyPrice": "",
+            "isCustomerDiscount": "",
+            "customerPrice": "",
+            "sellPrice2": "",
+            "pinyin": "",
+            "supplierUid": "",
+            "supplierName": "",
+            "supplierRangeList": "",
+            "productionDate": "",
+            "shelfLife": "",
+            "maxStock": "",
+            "minStock": "",
+            "description": "",
+            "noStock": "",
+            "stock": "",
+            "attribute6": "",
+            "attribute9": "",
+            "productCommonAttribute": "",
+            "baseUnitName": "",
+            "customerPrices": "",
+            "productUnitExchangeList": "",
+            "attribute1": "",
+            "attribute2": "",
+            "attribute3": "",
+            "attribute4": "",
+            "productTags": ""
+        }
+        for att in saveJson:
+            if att in findJson:
+                saveJson[att] = findJson[att]
 
         url = 'https://beta47.pospal.cn/Product/SaveProduct'
-        data = {
-            'productJson': {
-                "id": f['id'],
-                "enable": "1",
-                "userId": self.userid,
-                "barcode": f['barcode'],
-                "name": str(f['name']).replace(" ", "+") + '测试成功',
-                "categoryUid": f['categoryUid'],
-                "categoryName": f['category']['name'],
-                "sellPrice": f['sellPrice'],
-                "buyPrice": f['buyPrice'],
-                "isCustomerDiscount": f['isCustomerDiscount'],
-                "customerPrice": f['customerPrice'],
-                "sellPrice2": f['sellPrice2'],
-                "pinyin": f['pinyin'],
-                "supplierUid": f['supplierUid'],
-                "supplierName": f['supplierName'],
-                "supplierRangeList": f['supplierRangeList'],
-                "productionDate": "",
-                "shelfLife": f['shelfLife'],
-                "maxStock": f['maxStock'],
-                "minStock": f['minStock'],
-                "description": f['description'],
-                "noStock": '0',
-                "stock": f['stock'],
-                "attribute6": f['attribute6'],
-                "attribute9": f['attribute9'],
-                # "productCommonAttribute": f['productCommonAttribute'],
-                "baseUnitName": f['baseUnitName'],
-                "customerPrices": f['customerPrices'],
-                "productUnitExchangeList": f['productUnitExchangeList'],
-                "attribute1": f['attribute1'],
-                "attribute2": f['attribute2'],
-                "attribute3": f['attribute3'],
-                "attribute4": f['attribute4'],
-                "productTags": f['productTags'],
-                "productExtBarcodes": f['productExtBarcodes'],
-            }
-        }
-        data_examples = {
-            "productJson": {"id": 1133260903, "enable": "1", "userId": 4455361, "barcode": "9787572226427",
-                            "name": "课时作业本++英语++五年级下", "categoryUid": "1600950043435699735", "categoryName": "教辅资料",
-                            "sellPrice": "25", "buyPrice": "0", "isCustomerDiscount": "1", "customerPrice": "0",
-                            "sellPrice2": "0", "pinyin": "kszyb++yy++wnjx", "supplierUid": 'null', "supplierName": "无",
-                            "supplierRangeList": [], "productionDate": "", "shelfLife": "", "maxStock": "",
-                            "minStock": "", "description": "", "noStock": 0, "stock": "2", "attribute6": "",
-                            "attribute9": "", "productCommonAttribute": {"canAppointed": 0}, "baseUnitName": "无",
-                            "customerPrices": '[]', "productUnitExchangeList": '[]', "attribute1": "", "attribute2": "",
-                            "attribute3": "", "attribute4": "", "productTags": '[]', "productExtBarcodes": '[]'}
-        }
-        data_ex2 = {
-            "productJson": {"id": "1133260903", "enable": "1", "userId": "4455361", "barcode": "9787572226427",
-                            "name": "课时作业本  英语  五年级下", "categoryUid": "1600950043435699735",
-                            "categoryName": "教辅资料", "sellPrice": "25", "buyPrice": "0",
-                            "isCustomerDiscount": "1", "customerPrice": "0", "sellPrice2": "0",
-                            "pinyin": "kszyb  yy  wnjx", "supplierUid": 'null', "supplierName": "无",
-                            "supplierRangeList": "[]", "productionDate": "", "shelfLife": "", "maxStock": "",
-                            "minStock": "", "description": "", "noStock": "0", "stock": "2",
-                            "attribute6": "", "attribute9": "",
-                            "productCommonAttribute": {"canAppointed": "0"}, "baseUnitName": "无",
-                            "customerPrices": "[]", "productUnitExchangeList": "[]", "attribute1": "",
-                            "attribute2": "", "attribute3": "", "attribute4": "", "productTags": "[]",
-                            "productExtBarcodes": "[]"}
-        }
-
-        # print(data)
-        test_r = self.session.post()
+        print(saveJson)
+        if fixData:
+            for key in fixData:
+                if key in saveJson:
+                    saveJson[key] = fixData[key]
+        data = {'productJson': json.dumps(saveJson)}
+        response = self.session.post(url, data=data, )
+        print(response.content)

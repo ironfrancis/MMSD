@@ -437,7 +437,7 @@ class Shop(object):
             'X-Requested-With': 'XMLHttpRequest'
 
         }, data={'productId': __id})
-        return json.dumps(_resp.json(),ensure_ascii=False,indent=5)
+        return json.dumps(_resp.json(), ensure_ascii=False, indent=5)
 
     # 检查是否有图片，从findproduct的结果中解析而来
     def check_image(self, barcode):
