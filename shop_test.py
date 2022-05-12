@@ -25,4 +25,4 @@ from BaseClass.Shop import gtpShop
 #     print(catName)
 #     print(table)
 
-gtpShop.pos.SaveProduct(barcode=6941025155914, )
+print(gtpShop.pos.FindProductWithOption(barcode='0217983907756'))

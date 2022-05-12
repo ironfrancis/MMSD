@@ -48,12 +48,13 @@ class PosPal(object):
             "userId": "{}".format(self.userid),
             "barcode": "{}".format(barcode)
         }
-        resp = self.session.post(url, data).json()
+        resp = self.session.post(url, data)
         # 检查返回的数据是否正确
-        if resp['successed']:
-            return jsontest.dumps(resp['product'], indent=4, ensure_ascii=False)
+        if resp.json()['successed']:
+            return resp.json()['product']
         else:
             print("请求错误，请检查barcode是否正确")
+            return None
 
     # 保存网店商品设置
     def SaveProductOption(self, barcode):
@@ -434,11 +435,16 @@ class PosPal(object):
                 saveJson[att] = findJson[att]
 
         url = 'https://beta47.pospal.cn/Product/SaveProduct'
-        print(saveJson)
         if fixData:
             for key in fixData:
                 if key in saveJson:
                     saveJson[key] = fixData[key]
-        data = {'productJson': json.dumps(saveJson)}
-        response = self.session.post(url, data=data, )
-        print(response.content)
+                    data = {'productJson': json.dumps(saveJson)}
+                    response = self.session.post(url, data=data, )
+                    return print(response.content)
+                else:
+                    print('{} 字段不存在，请检查'.format(key))
+                    return None
+        else:
+            print("没有修改内容，在fixData{}中添加修改内容")
+            return None
