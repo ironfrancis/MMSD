@@ -2,6 +2,8 @@ import sqlite3
 import pandas as pd
 import os
 
+import BaseClass.Pospal
+
 if os.name == 'posix':
     dbpath = '/Users/mengmeng/Documents/Python_Projects/MMSD_V0.2/BaseClass/mmsd.db'
 else:
@@ -16,8 +18,8 @@ class ShopDb(object):
     def __init__(self, shop_id, shop_name):
         self.conn = sqlite3.connect(dbpath)  # 创建数据库连接
         self.cursor = self.conn.cursor()  # 创建游标
-        self.shop_id = shop_id                # 指定店铺id
-        self.shop_name = shop_name            # 指定店铺名
+        self.shop_id = shop_id  # 指定店铺id
+        self.shop_name = shop_name  # 指定店铺名
 
     # 关闭数据库
     def close(self):
@@ -83,13 +85,77 @@ def completeDb():
     from datetime import timedelta
 
     conn = sqlite3.connect(dbpath)
-    for i in range(20):
-        endDateTime = dt.now().replace(hour=23) - timedelta(days=(i * 30))
-        beginDateTime = endDateTime - timedelta(days=((i + 1) * 30))
-        df1 = gtpShop.pos.LoadProductSaleDetailsByPage(beginDateTime=beginDateTime.strftime('%Y-%m-%d'),
-                                                       endDateTime=endDateTime.strftime('%Y-%m-%d'))
-        print(df1)
-        df1.astype(str).to_sql('SaleRecords', conn, if_exists='append', index=False)
+    for i in range(30):
+        endDateTime = (dt.now().replace(hour=23) - timedelta(days=(i * 30)))
+        beginDateTime = (endDateTime - timedelta(days=(30)))
+        endDateTime = endDateTime.strftime('%Y-%m-%d') + ' 00:00:00'
+        beginDateTime = beginDateTime.strftime('%Y-%m-%d') + ' 00:00:00'
+        print(beginDateTime, endDateTime)
+        session = BaseClass.Pospal.get_session(numbers='18014151457')
+        url = 'https://beta47.pospal.cn/Report/LoadProductSaleDetailsByPage'
+        data = {
+            "keyword": "",
+            'userIds': "['4455361','4151410']",
+            "beginDateTime": beginDateTime,
+            "endDateTime": endDateTime,
+            "pageIndex": "1",
+            "pageSize": "100000",
+            "asc": "false",
+            "categorysJson": "[]",
+            "brandUids": "[]",
+        }
+        resp = session.post(url, data=data)  # 请求服务器
+        table = resp.json()['contentView']  # 解析返回的json数据
+        table = "<table>" + table + "</table>"  # 对内容修饰table标签
+        table = pd.read_html(table, index_col="Unnamed: 0")[0]  # pandas读取table
+        if table.shape[0] == 1:
+            print("已经获取到最早到记录，结束运行！")
+            break
+        # 写入数据表
+        table.to_sql('SaleRecords', conn, if_exists='append', index=False)
+
+        print(table.shape[0])
+        print("-" * 50)
 
 
-completeDb()
+# 启动时更新数据库
+def updateDb():
+    # 先获取数据库最新数据的时间标记
+    print("-" * 50)
+    print("开始更新数据库...")
+    from datetime import datetime as dt
+    from datetime import timedelta
+    conn = sqlite3.connect(dbpath)
+    endDateTime = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+    beginDateTime = conn.execute("SELECT 销售时间 FROM SaleRecords ORDER BY 销售时间 DESC LIMIT 1").fetchone()[0]
+    print(beginDateTime, endDateTime)
+    session = BaseClass.Pospal.get_session(numbers='18014151457')
+    url = 'https://beta47.pospal.cn/Report/LoadProductSaleDetailsByPage'
+    data = {
+        "keyword": "",
+        'userIds': "['4455361','4151410']",
+        "beginDateTime": beginDateTime,
+        "endDateTime": endDateTime,
+        "pageIndex": "1",
+        "pageSize": "100000",
+        "asc": "false",
+        "categorysJson": "[]",
+        "brandUids": "[]",
+    }
+    resp = session.post(url, data=data)  # 请求服务器
+    table = resp.json()['contentView']  # 解析返回的json数据
+    table = "<table>" + table + "</table>"  # 对内容修饰table标签
+    table = pd.read_html(table, index_col="Unnamed: 0")[0]  # pandas读取table
+    # 读取最新的流水号
+    last_id = conn.execute("SELECT 流水号 FROM SaleRecords ORDER BY 流水号 DESC LIMIT 1").fetchone()[0]
+    table.drop(table[table['流水号'] == last_id].index, inplace=True)
+    print(table)
+    # 写入数据表
+    table.to_sql('SaleRecords', conn, if_exists='append', index=False)
+    print(table.shape[0], "条记录更新完成！")
+    print("-" * 50)
+    conn.commit()
+    conn.close()
+
+
+updateDb()
