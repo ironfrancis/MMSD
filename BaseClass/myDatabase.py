@@ -5,7 +5,7 @@ import os
 import BaseClass.Pospal
 
 if os.name == 'posix':
-    dbpath = '/Users/mengmeng/Documents/Python_Projects/MMSD_V0.2/BaseClass/mmsd.db'
+    dbpath = '/Users/mengmeng/Documents/Python_Projects/mmsd.db'
 else:
     dbpath = "C:\\Users\\mengmeng\\Documents\\Python_Projects\\mmsd.db"
 
