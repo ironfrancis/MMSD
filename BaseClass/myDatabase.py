@@ -1,7 +1,12 @@
 import sqlite3
 import pandas as pd
+import os
 
-dbpath = "/Users/mengmeng/Documents/Python_Projects/mydatabase.db"
+if os.name == 'posix':
+    dbpath = '/Users/mengmeng/Documents/Python_Projects/MMSD_V0.2/BaseClass/mmsd.db'
+else:
+    dbpath = "C:\\Users\\mengmeng\\Documents\\Python_Projects\\mmsd.db"
+
 conn = sqlite3.connect(dbpath)
 
 
@@ -9,8 +14,8 @@ class ShopDb(object):
 
     # 初始化数据库con和cursor
     def __init__(self, shop_id, shop_name):
-        self.conn = sqlite3.connect(dbpath)   # 创建数据库连接
-        self.cursor = self.conn.cursor()      # 创建游标
+        self.conn = sqlite3.connect(dbpath)  # 创建数据库连接
+        self.cursor = self.conn.cursor()  # 创建游标
         self.shop_id = shop_id                # 指定店铺id
         self.shop_name = shop_name            # 指定店铺名
 
@@ -20,14 +25,14 @@ class ShopDb(object):
 
     # 做一个查询最近销售时间的操作,根据shop_name和barcode
     def query_last_sale_time(self, barcode):
-        sql = "select time from SaleRecords2 where store = '%s' and productBarcode = '%s'" % (self.shop_name, barcode)
+        sql = "select time from SaleRecords where store = '%s' and productBarcode = '%s'" % (self.shop_name, barcode)
         self.cursor.execute(sql)
         result = self.cursor.fetchone()
         return result
 
     # 做一个SaleRecords表 实时订单记录更新函数
     def update_records(self):
-        print('----更新数据表 SaleRecords2 ----')
+        print('----更新数据表 SaleRecords ----')
         from datetime import datetime
         # 获取库中最新的记录的时间'time',设为beginDateTime，当前时间设为endDateTime，获取订单记录
         beginDateTime = conn.execute("SELECT time FROM SaleRecords2 ORDER BY time DESC LIMIT 1").fetchone()[0]
@@ -69,3 +74,22 @@ class ShopDb(object):
         print('更新完成!')
         print('-' * 50)
         return '成功'
+
+
+def completeDb():
+    # 完成数据库的初始化
+    from BaseClass.Shop import gtpShop, syhShop
+    from datetime import datetime as dt
+    from datetime import timedelta
+
+    conn = sqlite3.connect(dbpath)
+    for i in range(20):
+        endDateTime = dt.now().replace(hour=23) - timedelta(days=(i * 30))
+        beginDateTime = endDateTime - timedelta(days=((i + 1) * 30))
+        df1 = gtpShop.pos.LoadProductSaleDetailsByPage(beginDateTime=beginDateTime.strftime('%Y-%m-%d'),
+                                                       endDateTime=endDateTime.strftime('%Y-%m-%d'))
+        print(df1)
+        df1.astype(str).to_sql('SaleRecords', conn, if_exists='append', index=False)
+
+
+completeDb()

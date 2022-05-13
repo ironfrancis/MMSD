@@ -56,6 +56,52 @@ class PosPal(object):
             print("请求错误，请检查barcode是否正确")
             return None
 
+    # 保存网店商品修改
+    def SaveProductWithOption(self, barcode, fixData={}):
+        # 先获取商品信息
+        findJson = self.FindProductWithOption(barcode=barcode)
+        # 定义空的保存格式
+        _saveJson = {'userId': '',  # 商店id
+                     'productUid': '',  # 商品id
+                     'eShopDisplayName': '',  # 商品在网店显示的名称 可不填
+                     'buylimitPerDay': '',  # 每人每天限购数量 可不填
+                     'eShopSellPrice': '',  # 商品在网店显示的价格 可不填
+                     'newHideFromEShop': '',  # 是否在网店隐藏 1代表隐藏 0代表不隐藏
+                     'hideOnEatIn': '',  # 是否堂食隐藏 1代表隐藏 0代表不隐藏
+                     'hideOnTakeAway': '',  # 是否外卖隐藏 1代表隐藏 0代表不隐藏
+                     'hideOnSelfTake': '',  # 是否自提隐藏 1代表隐藏 0代表不隐藏
+                     'hideOnScanQRCode': '',  # 扫码点单隐藏 1代表隐藏 0代表不隐藏
+                     'allowExpress': '',  # 是否允许快递 1代表允许 0代表不允许
+                     'mappingBarcode': '',  # 商品条码 可不填
+                     'enableVirtualStock': '',  # 是否启用虚拟库存 1代表启用 0代表不启用
+                     'returnPolicy': '',  # 退货政策 可不填
+                     'crossBorderProduct': '',  # 是否跨境商品 1代表是 0代表否
+                     'virtualStock': '',  # 虚拟库存
+                     }
+        # 遍历保存格式中的key
+        for att in _saveJson:
+            # 判断需要保存的key，是否在已获取的商品信息中
+            if att in findJson['productoption']:
+                _saveJson[att] = findJson['productoption'][att]
+            else:
+                continue
+        # 对fixData传入的参数进行修改
+        if fixData:
+            for key in fixData:
+                if key in _saveJson:
+                    _saveJson[key] = fixData[key]
+
+        # 将保存数据生成完整传递json
+        _data = {
+            'productOptionJson': json.dumps(_saveJson, ensure_ascii=False),
+            "groupBySpu": "", }
+        print(_data)
+        # 保存操作的url
+        url = 'https://beta47.pospal.cn/Eshop/SaveProductOption'
+        # 发送post
+        r = self.session.post(url=url, data=_data)
+        return r.content
+
     # 保存网店商品设置
     def SaveProductOption(self, barcode):
         url = 'https://beta47.pospal.cn/Eshop/SaveProductOption'

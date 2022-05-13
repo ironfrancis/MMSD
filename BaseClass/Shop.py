@@ -11,7 +11,6 @@ pd.set_option('display.max_rows', None)
 pd.set_option('display.width', 1280)
 
 
-
 # 定义一个类，用来操作 我的商店
 class Shop(object):
     def __init__(self, name, phone, user_id):
@@ -23,7 +22,16 @@ class Shop(object):
     def eshopList(self):
         table = self.pos.LoadEshopProductsByPage()
         table = table[table['是否显示'] == '是']
-        print(table.sort_values('销售价', ascending=False).reset_index("序号",drop=True))
+        print(table.sort_values('销售价', ascending=False).reset_index("序号", drop=True))
+
+    # 将某商品上架网店
+    def pullEShop(self, barcode):
+        fixData = {
+            'newHideFromEShop': 0,
+            'hideOnSelfTake': 0,
+        }
+        r = self.pos.SaveProductWithOption(barcode=barcode, fixData=fixData)
+        return r
 
     # 根据本地数据库查询的接口
     @property
@@ -242,8 +250,8 @@ class Shop(object):
         return PosPal(self.user_id, self.phone)
 
     # 查询目前的分类情况，
-    def query_category(self, to_nameList=False,to_json=False,type=0):
-        categoryType = ['all','grand','father','son','grandson'][type]
+    def query_category(self, to_nameList=False, to_json=False, type=0):
+        categoryType = ['all', 'grand', 'father', 'son', 'grandson'][type]
         session = get_zd_session()
         url = 'https://beta47.pospal.cn/Category/LoadCategorysWithOption'
         resp = session.post(url, data={'userId': '{}'.format(self.user_id), })
@@ -256,7 +264,6 @@ class Shop(object):
                     # print(c)
                     resultDict[c['name']] = c['uid']
             return resultDict
-
 
         # 返回分类名称列表 list[{'name':'', 'id':''},...]
         if to_nameList:
@@ -450,7 +457,9 @@ class Shop(object):
         return _dic['productimages'] == []
 
 
+
 shop_list = [('萌萌书店(关天培店)', '18014151458', '4151410'), ('萌萌书店(山阳湖店)', '18014151459', '4455361')]
 # 实例化2个商店
 gtpShop = Shop(shop_list[0][0], shop_list[0][1], shop_list[0][2])
 syhShop = Shop(shop_list[1][0], shop_list[1][1], shop_list[1][2])
+# gtpShop.DataBase.update_records()

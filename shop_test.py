@@ -24,5 +24,3 @@ from BaseClass.Shop import gtpShop
 #     table = gtpShop.pos.LoadProductsByPage(categoryJson=catId)
 #     print(catName)
 #     print(table)
-
-print(gtpShop.pos.FindProductWithOption(barcode='0217983907756'))
