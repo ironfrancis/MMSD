@@ -3,6 +3,7 @@ import json
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+from BaseClass.myDatabase import conn
 
 from 外部接口.pos_login import *
 
@@ -182,10 +183,13 @@ class Shop(object):
                 _stockNow = productDf.loc['{}'.format(_barcode), '库存']
             except:
                 _stockNow = 0
-            from mydb_fix_backup import conn
+            from BaseClass.myDatabase import conn
             _summary = pd.read_sql(
-                "select * from SaleRecords2 where productBarcode = '{}' and time > '{}'".format(_barcode, _date), conn)
-            _saleCount = _summary['productQuantity'].sum()
+                "select * from SaleRecords where 商品条码 = '{}' and 销售时间 > '{}'".format(_barcode, _date), conn)
+            _saleCount = _summary['销售数量'].astype(float).sum()
+
+            if float(_stockNow) < 0:
+                _stockNow = 0
             _wavePercent = int(round(float(_saleCount) / (float(_stockGet) + float(_stockNow)), 2) * 100)
             result_df.loc[i] = [_date, _barcode, _name, _stockGet, _saleCount, _wavePercent]
             # 在df1中删除这一行
@@ -196,7 +200,6 @@ class Shop(object):
         result_df[result_df['售出百分比'] < 10].sort_values('售出百分比', ascending=True).reset_index(drop=True).to_markdown(
             "糟糕的采购！.md")
 
-        # result_df[result_df['售出百分比'] < 10].to_markdown("不错的采购！")
 
     # 将活跃分类进行超类检查
     def check_active_category(self):
@@ -349,14 +352,14 @@ class Shop(object):
                 end_date = datetime.now().strftime('%Y-%m-%d')
         else:
             print('参数错误')
-            return
+            return None
 
         start_date = start_date + ' 00:00:00'
         end_date = end_date + '23:59:59'
 
         # 查询订单记录
         sql = '''
-        select * from SaleRecords2 where store = '{}' and time between '{}' and '{}'
+        select * from SaleRecords where store = '{}' and time between '{}' and '{}'
         '''.format(self.name, start_date, end_date)
         df = pd.read_sql(sql, conn)
         return df
