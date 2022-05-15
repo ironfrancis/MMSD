@@ -59,3 +59,4 @@ class Member(object):
 
 mb = Member('李梓德', '17368110918')
 print(mb.info())
+print("ok")
