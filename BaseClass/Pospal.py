@@ -37,6 +37,25 @@ class PosPal(object):
         self.zd_session = get_session('18014151457')  # 总店session
         self.session = get_session(number)  # 分店session
 
+    # 查询会员
+    def LoadCustomersByPage(self):
+        url = 'https://beta47.pospal.cn/Customer/LoadCustomersByPage'
+        data = {
+            "createUserId": "[4151410,4455361]",
+            "categoryUid": "",
+            "tagUid": "",
+            "type": "1",
+            "guiderUid": "",
+            "keyword": "",
+            "pageIndex": "1",
+            "pageSize": "10000",
+            "orderColumn": "",
+            "asc": "false"
+        }
+        table = pd.read_html("<table>" + self.zd_session.post(url, data=data).json()['contentView'] + "</table>",
+                             index_col='Unnamed: 0')[0]
+        return table
+
     # 设置秒杀商品
     def SaveSeckillRule(self):
         url = 'https://beta47.pospal.cn/EshopMarketing/SaveSeckillRule'
